@@ -1,8 +1,7 @@
 services:
   - type: web
-    name: my-app
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
-    repo: https://github.com/your-username/your-repo
-    branch: main
+    name: calculadora3d
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
