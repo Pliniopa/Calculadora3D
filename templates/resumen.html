@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Resumen de productos{% endblock %}
+{% block body %}
+<h2>Resumen de costos</h2>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Costo pieza</th>
+      <th>Adicionales</th>
+      <th>Ganancia</th>
+      <th>Precio final</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in resumen %}
+    <tr>
+      <td>{{ item.nombre }}</td>
+      <td>${{ item.costo_pieza }}</td>
+      <td>${{ item.adicionales }}</td>
+      <td>${{ item.ganancia }}</td>
+      <td><strong>${{ item.precio_final }}</strong></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- Botones de acción -->
+<div class="mt-4 d-flex gap-3">
+<a href="/cancelar" class="btn btn-secondary">Cancelar</a>
+  <a href="/descargar_csv" class="btn btn-success">Descargar CSV</a>
+  <a href="/descargar_pdf" class="btn btn-danger">Descargar PDF</a>
+    <a href="/ingresar" class="btn btn-primary">Adicionar una nueva pieza</a>
+</div>
+
+{% endblock %}

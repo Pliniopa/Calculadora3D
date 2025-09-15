@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Ingresar Producto{% endblock %}
+
+{% block body %}
+<h2>Formulario de ingreso</h2>
+
+<form method="post" action="/ingresar">
+  <div class="mb-3">
+    <label for="nombre_pieza">Nombre de la pieza</label>
+    <input type="text" class="form-control" name="nombre_pieza" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="valor_rollo">Valor del rollo</label>
+    <input type="number" class="form-control" name="valor_rollo" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="hora_luz">Costo por hora de luz</label>
+    <input type="number" class="form-control" name="hora_luz" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="hora_laboral">Costo por hora laboral</label>
+    <input type="number" class="form-control" name="hora_laboral" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="metros_bobina">Metros por bobina</label>
+    <input type="number" class="form-control" name="metros_bobina" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="metros_pieza">Metros por pieza</label>
+    <input type="number" class="form-control" name="metros_pieza" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="divisor">Cantidad de piezas por bobina</label>
+    <input type="number" class="form-control" name="divisor" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="ganancia">Porcentaje de ganancia</label>
+    <input type="number" class="form-control" name="ganancia" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="tiempo_horas">Tiempo de producción (horas)</label>
+    <input type="number" class="form-control" name="tiempo_horas" required>
+  </div>
+
+  <div class="mb-3">
+    <label for="tiempo_minutos">Tiempo de producción (minutos)</label>
+    <input type="number" class="form-control" name="tiempo_minutos" required>
+  </div>
+
+  <!-- Campos para ítems adicionales -->
+  <div class="mb-3">
+    <label for="descripcion_adicional">Descripción adicional</label>
+    <input type="text" class="form-control" name="descripcion_adicional">
+  </div>
+
+ <div class="mb-3">
+  <label for="adicional_nombre_1">Descripción adicional 1</label>
+  <input type="text" class="form-control" name="adicional_nombre_1">
+</div>
+<div class="mb-3">
+  <label for="adicional_valor_1">Valor adicional 1</label>
+  <input type="number" class="form-control" name="adicional_valor_1">
+</div>
+<!-- Repetir para adicional_nombre_2, adicional_valor_2, etc. -->
+<div id="adicionales-container">
+  <h5>Ítems adicionales</h5>
+  <div class="mb-3">
+    <input type="text" class="form-control mb-1" name="adicional_nombre_1" placeholder="Descripción adicional">
+    <input type="number" class="form-control" name="adicional_valor_1" placeholder="Valor adicional">
+  </div>
+</div>
+<button type="button" class="btn btn-secondary mb-3" onclick="agregarAdicional()">Agregar otro adicional</button>
+
+
+  <button type="submit" class="btn btn-primary">Guardar</button>
+</form>
+
+{% if error %}
+  <div class="alert alert-danger mt-3">{{ error }}</div>
+{% endif %}
+
+{% endblock %}
