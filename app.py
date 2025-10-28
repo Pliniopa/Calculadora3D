@@ -33,29 +33,78 @@ id_actual = 1
 def descargar_pdf():
     buffer = io.BytesIO()
     p = canvas.Canvas(buffer, pagesize=letter)
-    y = 750
-
-    p.setFont("Helvetica", 12)
-    p.drawString(50, y, "Resumen de Productos")
-    y -= 30
+    
+    def draw_text_block(text_lines, start_y, font_size=10):
+        y = start_y
+        p.setFont("Helvetica", font_size)
+        for line in text_lines:
+            p.drawString(50, y, line)
+            y -= 15
+        return y
 
     for producto in Productos:
-        nombre = producto[constantes.texto18]
+        y = 750  # Reset Y position for each new page
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, f"Detalle de producto: {producto[constantes.texto18]}")
+        y -= 30
+
+        # Datos de entrada
+        text_lines = [
+            "DATOS DE ENTRADA:",
+            f"Valor rollo: ${producto[constantes.texto14]}",
+            f"Hora luz: ${producto[constantes.texto15]}",
+            f"Metros bobina: {producto[constantes.texto16]}m",
+            f"Hora laboral: ${producto[constantes.texto17]}",
+            f"Metros pieza: {producto[constantes.texto19]}m",
+            f"Tiempo total: {producto[constantes.texto21]} minutos",
+            f"Porcentaje ganancia: {producto[constantes.texto20]}%",
+            f"Divisor: {producto[constantes.texto27]}"
+        ]
+        y = draw_text_block(text_lines, y)
+        y -= 20
+
+        # Cálculos
         costo_material = (producto[constantes.texto19] / producto[constantes.texto16]) * producto[constantes.texto14]
         costo_laboral = (producto[constantes.texto21] / 60) * producto[constantes.texto17]
         costo_luz = (producto[constantes.texto21] / 60) * producto[constantes.texto15]
         subtotal_pieza = costo_material + costo_laboral + costo_luz
         costo_pieza = round(subtotal_pieza / producto[constantes.texto27], 2)
-        adicionales = sum([item["valor"] for item in producto.get(constantes.texto22, [])])
-        ganancia = round((costo_pieza + adicionales) * (producto[constantes.texto20] / 100), 2)
-        precio_final = round(costo_pieza + adicionales + ganancia, 2)
-
-        texto = f"{nombre} | Costo: {costo_pieza} | Adicionales: {adicionales} | Ganancia: {ganancia} | Total: {precio_final}"
-        p.drawString(50, y, texto)
+        
+        text_lines = [
+            "DESGLOSE DE COSTOS:",
+            f"Costo material: ${round(costo_material, 2)}",
+            f"Costo laboral: ${round(costo_laboral, 2)}",
+            f"Costo luz: ${round(costo_luz, 2)}",
+            f"Subtotal por pieza: ${round(subtotal_pieza, 2)}"
+        ]
+        y = draw_text_block(text_lines, y)
         y -= 20
-        if y < 50:
-            p.showPage()
-            y = 750
+
+        # Adicionales
+        adicionales = producto.get(constantes.texto22, [])
+        if adicionales:
+            text_lines = ["COSTOS ADICIONALES:"]
+            for item in adicionales:
+                text_lines.append(f"{item['descripcion']}: ${item['valor']}")
+            y = draw_text_block(text_lines, y)
+            y -= 20
+
+        # Resumen final
+        costo_adicionales = sum([item["valor"] for item in adicionales])
+        ganancia = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
+        precio_final = round(costo_pieza + costo_adicionales + ganancia, 2)
+
+        text_lines = [
+            "RESUMEN FINAL:",
+            f"Costo por pieza: ${costo_pieza}",
+            f"Total adicionales: ${costo_adicionales}",
+            f"Ganancia ({producto[constantes.texto20]}%): ${ganancia}",
+            f"PRECIO FINAL: ${precio_final}"
+        ]
+        y = draw_text_block(text_lines, y, 12)
+
+        # Nueva página para el siguiente producto
+        p.showPage()
 
     p.save()
     buffer.seek(0)
@@ -173,18 +222,46 @@ from flask import Response
 @app.route("/descargar_csv")
 def descargar_csv():
     def generar_csv():
-        yield "Nombre,Costo pieza,Adicionales,Ganancia,Precio final\n"
+        # Encabezados
+        yield "Nombre,Valor rollo,Hora luz,Metros bobina,Hora laboral,Metros pieza,Tiempo total (min),Porcentaje ganancia,Divisor,"
+        yield "Costo material,Costo laboral,Costo luz,Subtotal pieza,Costo por pieza,Total adicionales,Ganancia,Precio final,Detalles adicionales\n"
+
         for producto in Productos:
-            nombre = producto[constantes.texto18]
+            # Cálculos
             costo_material = (producto[constantes.texto19] / producto[constantes.texto16]) * producto[constantes.texto14]
             costo_laboral = (producto[constantes.texto21] / 60) * producto[constantes.texto17]
             costo_luz = (producto[constantes.texto21] / 60) * producto[constantes.texto15]
             subtotal_pieza = costo_material + costo_laboral + costo_luz
             costo_pieza = round(subtotal_pieza / producto[constantes.texto27], 2)
-            adicionales = sum([item["valor"] for item in producto.get(constantes.texto22, [])])
-            ganancia = round((costo_pieza + adicionales) * (producto[constantes.texto20] / 100), 2)
-            precio_final = round(costo_pieza + adicionales + ganancia, 2)
-            yield f"{nombre},{costo_pieza},{adicionales},{ganancia},{precio_final}\n"
+            adicionales = producto.get(constantes.texto22, [])
+            costo_adicionales = sum([item["valor"] for item in adicionales])
+            ganancia = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
+            precio_final = round(costo_pieza + costo_adicionales + ganancia, 2)
+            
+            # Detalles de adicionales como texto
+            detalles_adicionales = "; ".join([f"{item['descripcion']}: ${item['valor']}" for item in adicionales]) if adicionales else ""
+            
+            # Datos básicos
+            yield f"{producto[constantes.texto18]}," # Nombre
+            yield f"{producto[constantes.texto14]}," # Valor rollo
+            yield f"{producto[constantes.texto15]}," # Hora luz
+            yield f"{producto[constantes.texto16]}," # Metros bobina
+            yield f"{producto[constantes.texto17]}," # Hora laboral
+            yield f"{producto[constantes.texto19]}," # Metros pieza
+            yield f"{producto[constantes.texto21]}," # Tiempo total
+            yield f"{producto[constantes.texto20]}," # Porcentaje ganancia
+            yield f"{producto[constantes.texto27]}," # Divisor
+            
+            # Resultados de cálculos
+            yield f"{round(costo_material, 2)}," # Costo material
+            yield f"{round(costo_laboral, 2)}," # Costo laboral
+            yield f"{round(costo_luz, 2)}," # Costo luz
+            yield f"{round(subtotal_pieza, 2)}," # Subtotal pieza
+            yield f"{costo_pieza}," # Costo por pieza
+            yield f"{costo_adicionales}," # Total adicionales
+            yield f"{ganancia}," # Ganancia
+            yield f"{precio_final}," # Precio final
+            yield f"{detalles_adicionales}\n" # Detalles de adicionales
 
     return Response(generar_csv(), mimetype="text/csv",
                     headers={"Content-Disposition": "attachment;filename=resumen.csv"})
