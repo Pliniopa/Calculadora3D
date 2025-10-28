@@ -1,30 +1,113 @@
 {% extends "base.html" %}
 {% block title %}Resumen de productos{% endblock %}
 {% block body %}
-<h2>Resumen de costos</h2>
+<h2>Resumen detallado de costos</h2>
 
-<table class="table table-bordered">
-  <thead>
-    <tr>
-      <th>Nombre</th>
-      <th>Costo pieza</th>
-      <th>Adicionales</th>
-      <th>Ganancia</th>
-      <th>Precio final</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in resumen %}
-    <tr>
-      <td>{{ item.nombre }}</td>
-      <td>${{ item.costo_pieza }}</td>
-      <td>${{ item.adicionales }}</td>
-      <td>${{ item.ganancia }}</td>
-      <td><strong>${{ item.precio_final }}</strong></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+{% for item in resumen %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h3>{{ item.nombre }}</h3>
+  </div>
+  <div class="card-body">
+    <!-- Datos de entrada -->
+    <h4>Datos de entrada</h4>
+    <table class="table table-sm">
+      <tr>
+        <th>Valor rollo:</th>
+        <td>${{ item.datos_entrada.valor_rollo }}</td>
+        <th>Hora luz:</th>
+        <td>${{ item.datos_entrada.hora_luz }}</td>
+      </tr>
+      <tr>
+        <th>Metros bobina:</th>
+        <td>{{ item.datos_entrada.metros_bobina }}m</td>
+        <th>Hora laboral:</th>
+        <td>${{ item.datos_entrada.hora_laboral }}</td>
+      </tr>
+      <tr>
+        <th>Metros pieza:</th>
+        <td>{{ item.datos_entrada.metros_pieza }}m</td>
+        <th>Tiempo total:</th>
+        <td>{{ item.datos_entrada.tiempo_total_minutos }} minutos</td>
+      </tr>
+      <tr>
+        <th>% Ganancia:</th>
+        <td>{{ item.datos_entrada.porcentaje_ganancia }}%</td>
+        <th>Divisor:</th>
+        <td>{{ item.datos_entrada.divisor }}</td>
+      </tr>
+    </table>
+
+    <!-- Cálculos detallados -->
+    <h4>Desglose de costos</h4>
+    <table class="table table-bordered">
+      <tr>
+        <th>Concepto</th>
+        <th>Valor</th>
+        <th>Fórmula</th>
+      </tr>
+      <tr>
+        <td>Costo material</td>
+        <td>${{ item.calculos.costo_material }}</td>
+        <td><small>({{ item.datos_entrada.metros_pieza }}m / {{ item.datos_entrada.metros_bobina }}m) × ${{ item.datos_entrada.valor_rollo }}</small></td>
+      </tr>
+      <tr>
+        <td>Costo laboral</td>
+        <td>${{ item.calculos.costo_laboral }}</td>
+        <td><small>({{ item.datos_entrada.tiempo_total_minutos }}min / 60) × ${{ item.datos_entrada.hora_laboral }}</small></td>
+      </tr>
+      <tr>
+        <td>Costo luz</td>
+        <td>${{ item.calculos.costo_luz }}</td>
+        <td><small>({{ item.datos_entrada.tiempo_total_minutos }}min / 60) × ${{ item.datos_entrada.hora_luz }}</small></td>
+      </tr>
+      <tr>
+        <td>Subtotal por pieza</td>
+        <td>${{ item.calculos.subtotal_pieza }}</td>
+        <td><small>Suma de costos / {{ item.datos_entrada.divisor }} piezas</small></td>
+      </tr>
+    </table>
+
+    <!-- Adicionales -->
+    {% if item.adicionales %}
+    <h4>Costos adicionales</h4>
+    <table class="table table-sm">
+      <tr>
+        <th>Descripción</th>
+        <th>Valor</th>
+      </tr>
+      {% for adicional in item.adicionales %}
+      <tr>
+        <td>{{ adicional.descripcion }}</td>
+        <td>${{ adicional.valor }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    <!-- Resumen final -->
+    <h4>Resumen final</h4>
+    <table class="table table-bordered">
+      <tr>
+        <th>Costo por pieza:</th>
+        <td>${{ item.costo_pieza }}</td>
+      </tr>
+      <tr>
+        <th>Total adicionales:</th>
+        <td>${{ item.costo_adicionales }}</td>
+      </tr>
+      <tr>
+        <th>Ganancia ({{ item.datos_entrada.porcentaje_ganancia }}%):</th>
+        <td>${{ item.ganancia }}</td>
+      </tr>
+      <tr class="table-primary">
+        <th>Precio final:</th>
+        <td><strong>${{ item.precio_final }}</strong></td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endfor %}
 
 <!-- Botones de acción -->
 <div class="mt-4 d-flex gap-3">

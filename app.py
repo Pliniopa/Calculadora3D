@@ -128,6 +128,7 @@ def resumen():
     resumen_datos = []
 
     for producto in Productos:
+        # Cálculos detallados
         costo_material = (producto[constantes.texto19] / producto[constantes.texto16]) * producto[constantes.texto14]
         costo_laboral = (producto[constantes.texto21] / 60) * producto[constantes.texto17]
         costo_luz = (producto[constantes.texto21] / 60) * producto[constantes.texto15]
@@ -138,11 +139,29 @@ def resumen():
         ganancia_total = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
         precio_final = round(costo_pieza + costo_adicionales + ganancia_total, 2)
 
+        # Crear objeto con todos los detalles
         resumen_datos.append({
             "nombre": producto[constantes.texto18],
-            "costo_pieza": costo_pieza,
-            "adicionales": costo_adicionales,
-            "ganancia": ganancia_total,
+            "datos_entrada": {
+                "valor_rollo": producto[constantes.texto14],
+                "hora_luz": producto[constantes.texto15],
+                "metros_bobina": producto[constantes.texto16],
+                "hora_laboral": producto[constantes.texto17],
+                "metros_pieza": producto[constantes.texto19],
+                "porcentaje_ganancia": producto[constantes.texto20],
+                "tiempo_total_minutos": producto[constantes.texto21],
+                "divisor": producto[constantes.texto27]
+            },
+            "calculos": {
+                "costo_material": round(costo_material, 2),
+                "costo_laboral": round(costo_laboral, 2),
+                "costo_luz": round(costo_luz, 2),
+                "subtotal_pieza": round(subtotal_pieza, 2)
+            },
+            "costo_pieza": round(costo_pieza, 2),
+            "adicionales": adicionales,
+            "costo_adicionales": round(costo_adicionales, 2),
+            "ganancia": round(ganancia_total, 2),
             "precio_final": precio_final
         })
 
