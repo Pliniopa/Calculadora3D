@@ -65,7 +65,7 @@ def descargar_pdf():
 
         # Cálculos
         costo_material = (producto[constantes.texto19] / producto[constantes.texto16]) * producto[constantes.texto14]
-        costo_laboral = (producto[constantes.texto21] / 60) * producto[constantes.texto17]
+        costo_laboral = producto[constantes.texto17]  # Valor directo de hora laboral
         costo_luz = (producto[constantes.texto21] / 60) * producto[constantes.texto15]
         subtotal_pieza = costo_material + costo_laboral + costo_luz
         costo_pieza = round(subtotal_pieza / producto[constantes.texto27], 2)
@@ -229,7 +229,7 @@ def descargar_csv():
         for producto in Productos:
             # Cálculos
             costo_material = (producto[constantes.texto19] / producto[constantes.texto16]) * producto[constantes.texto14]
-            costo_laboral = (producto[constantes.texto21] / 60) * producto[constantes.texto17]
+            costo_laboral = producto[constantes.texto17]  # Valor directo de hora laboral
             costo_luz = (producto[constantes.texto21] / 60) * producto[constantes.texto15]
             subtotal_pieza = costo_material + costo_laboral + costo_luz
             costo_pieza = round(subtotal_pieza / producto[constantes.texto27], 2)
