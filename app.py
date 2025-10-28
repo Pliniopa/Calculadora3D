@@ -92,13 +92,15 @@ def descargar_pdf():
         # Resumen final
         costo_adicionales = sum([item["valor"] for item in adicionales])
         ganancia = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
-        precio_final = round(costo_pieza + costo_adicionales + ganancia, 2)
+        mantenimiento = round(costo_pieza * 0.30, 2)
+        precio_final = round(costo_pieza + costo_adicionales + ganancia + mantenimiento, 2)
 
         text_lines = [
             "RESUMEN FINAL:",
             f"Costo por pieza: ${costo_pieza}",
             f"Total adicionales: ${costo_adicionales}",
             f"Ganancia ({producto[constantes.texto20]}%): ${ganancia}",
+            f"Mantenimiento (30%): ${mantenimiento}",
             f"PRECIO FINAL: ${precio_final}"
         ]
         y = draw_text_block(text_lines, y, 12)
@@ -186,7 +188,8 @@ def resumen():
         adicionales = producto.get(constantes.texto22, [])
         costo_adicionales = sum([item["valor"] for item in adicionales])
         ganancia_total = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
-        precio_final = round(costo_pieza + costo_adicionales + ganancia_total, 2)
+        mantenimiento = round(costo_pieza * 0.30, 2)
+        precio_final = round(costo_pieza + costo_adicionales + ganancia_total + mantenimiento, 2)
 
         # Crear objeto con todos los detalles
         resumen_datos.append({
@@ -211,6 +214,7 @@ def resumen():
             "adicionales": adicionales,
             "costo_adicionales": round(costo_adicionales, 2),
             "ganancia": round(ganancia_total, 2),
+            "mantenimiento": round(mantenimiento, 2),
             "precio_final": precio_final
         })
 
@@ -224,7 +228,7 @@ def descargar_csv():
     def generar_csv():
         # Encabezados
         yield "Nombre,Valor rollo,Hora luz,Metros bobina,Hora laboral,Metros pieza,Tiempo total (min),Porcentaje ganancia,Divisor,"
-        yield "Costo material,Costo laboral,Costo luz,Subtotal pieza,Costo por pieza,Total adicionales,Ganancia,Precio final,Detalles adicionales\n"
+        yield "Costo material,Costo laboral,Costo luz,Subtotal pieza,Costo por pieza,Total adicionales,Ganancia,Mantenimiento,Precio final,Detalles adicionales\n"
 
         for producto in Productos:
             # Cálculos
@@ -236,7 +240,8 @@ def descargar_csv():
             adicionales = producto.get(constantes.texto22, [])
             costo_adicionales = sum([item["valor"] for item in adicionales])
             ganancia = round((costo_pieza + costo_adicionales) * (producto[constantes.texto20] / 100), 2)
-            precio_final = round(costo_pieza + costo_adicionales + ganancia, 2)
+            mantenimiento = round(costo_pieza * 0.30, 2)
+            precio_final = round(costo_pieza + costo_adicionales + ganancia + mantenimiento, 2)
             
             # Detalles de adicionales como texto
             detalles_adicionales = "; ".join([f"{item['descripcion']}: ${item['valor']}" for item in adicionales]) if adicionales else ""
@@ -260,6 +265,7 @@ def descargar_csv():
             yield f"{costo_pieza}," # Costo por pieza
             yield f"{costo_adicionales}," # Total adicionales
             yield f"{ganancia}," # Ganancia
+            yield f"{mantenimiento}," # Mantenimiento
             yield f"{precio_final}," # Precio final
             yield f"{detalles_adicionales}\n" # Detalles de adicionales
 
